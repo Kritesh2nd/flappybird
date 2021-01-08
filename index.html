@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+    <title>Flappy Bird</title><!-- Flappy Bird 01 ------------------------>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0;font-family:'Open Sans',sans-serif;background:#333;}
+      *:focus{outline:none;}
+      .mainbody{height:100vh;width:100%;}
+      .border{border:1px solid #000;}
+      .borderx{border:0px solid #000;}
+      .borderr{border:1px solid #f00;}
+      .borderg{border:1px solid #0f0;}
+      .borderb{border:1px solid #00f;}
+      .bordery{border:1px solid #ff0;}
+      .borderp{border:1px solid #f0f;}
+      .borderc{border:1px solid #0ff;}
+      .border0{border:1px solid #fff;}
+      .abs{position:absolute;}
+      .ins{height:100%;width:100%;}
+      .inr{height:100%;width:100%;position:relative;}
+      .rel{position:relative;}
+      .inr0{border:1px solid #f00;height:100%;width:100%;position:relative;}
+      :root{
+        --borderx:0px solid #000;--border0:1px solid #000;--bordery:1px solid #ff0;
+        --borderr:1px solid #f00;--borderg:1px solid #0f0;--borderb:1px solid #00f;
+        --borderp:1px solid #f0f;--borderc:1px solid #0ff;--borderw:1px solid #fff;
+      }
+      .inrbody{margin:100px auto;width:800px;height:400px;}
+      .bird{display:none;}
+      .gameover{display:none;}
+      .space{display:none;}
+    </style>
+  </head>
+  <body>
+    <div class = "mainbody border">
+      <div class = "inrbody">
+        <canvas class="myCanvas border rel"></canvas>
+        <img src = "image/bird.png" class = "bird ">
+        <img src = "image/gameover.png" class = "gameover ">
+        <img src = "image/space.png" class = "space ">
+        <audio class = "audio1">
+          <source src="music/JpbHighMusic.mp3" type="audio/mpeg">
+        </audio>
+        <audio class = "audio2">
+          <source src="music/CarolsOfBellsViolin.mp3" type="audio/mpeg">
+        </audio>
+      </div>
+    </div>
+   <script>
+      //var bird = document.querySelector(".bird");
+      //var inrgmblock = document.querySelectorAll(".inrgmblock");
+      var mycanvas = document.querySelector(".myCanvas");
+      var bird = document.querySelector(".bird");
+      var gover = document.querySelector(".gameover");
+      var space = document.querySelector(".space");
+      var audio1 = document.querySelector(".audio1");
+      var audio2 = document.querySelector(".audio2");
+      var page01 = mycanvas.getContext("2d");
+      mycanvas.height = "400";mycanvas.width = "800";
+
+      var page="1";var pipeX1=370;var pipeX2=770;var birdY = 150;var birdYY = .5;var pipspd = 5;
+      var interval=20;var gamestate = "on";var pipelenA;var pipelenB;var pipespace = 160;
+      var newspeed=0;var gameover = "no";var music = "Music Off";var audiox = "audio2";
+      var scorex = -10;var Hscorex = 0;
+      piperandA();piperandB();
+      document.addEventListener('keydown',function(event){            
+        if(event.keyCode == 32){//SPACE
+          if(birdY >= 40 && gameover == "no"){birdYY = -8;}
+          else if(birdY <= 40 && gameover == "no"){birdYY = -.1;}
+          else if(gameover == "yes"){
+            gameover = "no";scorex =0;
+            pipeX1=370;pipeX2=770;birdY = 150;birdYY = .5;pipspd = 5;
+          }
+          page = "2";
+        }
+        else if(event.keyCode == 77){//M
+          if(music == "Music Off"){
+            music = "Music On";
+            if(audiox == "audio1"){audio1.play();audio1.loop = true;}
+            else if(audiox == "audio2"){audio2.play();audio2.loop = true;}
+          }
+          else if(music == "Music On"){
+            music = "Music Off";
+            if(audiox == "audio1" || audiox == "audio2"){audio1.pause();audio2.pause();}
+          }
+        }
+        else if(event.keyCode == 49){//1
+          audiox = "audio1";
+          audio2.pause();
+          audio1.play();
+          audio1.loop = true;
+        }
+        else if(event.keyCode == 50){//2
+          audiox = "audio2";
+          audio1.pause();
+          audio2.play();
+          audio2.loop = true;
+        }
+        else if(event.keyCode == 79){//O
+          if(gameover == "yes"){gameover = "no";}
+          else if(gameover == "no"){gameover = "yes";}
+          playmusic();
+        }
+        else if(event.keyCode == 82){//R
+          gameover = "no";scorex =0;page = "1";
+          pipeX1=370;pipeX2=770;birdY = 150;birdYY = .5;pipspd = 5;
+        }
+      });
+      console.log("music",music);
+      mycanvas.addEventListener("click",clkpage01);
+      window.onload = function() {
+        setInterval(()=>{
+        if(page == "1"){
+          page01.fillStyle = "skyblue";
+          page01.fillRect(0,0,800,400);
+          page01.fillStyle = "#000";
+          page01.font = "20px 'Open Sans',sans-serif";//Arial
+          page01.fillText(music,600,50);
+          page01.fillText("Click SPACE to Play",320, 250,);
+          page01.fillText("Click O for Menu",330, 275,);
+          page01.fillText("Click M to turn on Music",293, 300,);
+          page01.font = "13px 'Open Sans',sans-serif";//Arial
+          page01.fillText("Created by Kritesh Thapa",645, 395,);
+        }
+        else if(page == "2"){
+          if(gameover == "no"){
+            var Nspeed = pipspd+newspeed;
+            if(scorex >= Hscorex){Hscorex = scorex;}
+            if(scorex >= 0 && scorex < 100){newspeed = (scorex/50);}
+            else if(scorex >= 100 && scorex < 300){newspeed = 1+(scorex/100);}
+            else if(scorex >= 300 && scorex < 500){newspeed = 2.5+(scorex/200);}
+            else if(scorex >= 500){newspeed = 3.75+(scorex/400);}
+            page01.fillStyle = "skyblue";
+            page01.fillRect(0,0,800,400);
+            page01.fillStyle = "green";
+            page01.fillRect(pipeX1,0,30,240-(pipelenA*40));
+            page01.fillRect(pipeX1,240-(pipelenA*40)+pipespace,30,pipelenA*40);
+            page01.fillRect(pipeX2,0,30,240-(pipelenB*40));
+            page01.fillRect(pipeX2,240-(pipelenB*40)+pipespace,30,pipelenB*40);
+            page01.fillStyle = "#000";
+            page01.font = "15px 'Open Sans',sans-serif";//Arial
+            page01.fillText("score "+scorex, 10, 20);
+            page01.fillText("High score "+Hscorex, 80, 20);
+            page01.drawImage(bird, 5, birdY,30,23);
+            if(birdY <= 370){birdY += birdYY += .5;}
+            else if(birdY >= 370 && birdYY == -8){birdY += birdYY;}
+            if(pipeX1>=-30){pipeX1-=Nspeed;}else{pipeX1=800;piperandA();}
+            if(pipeX2>=-30){pipeX2-=Nspeed;}else{pipeX2=800;piperandB();}
+            // console.log("scorex",scorex,newspeed,newspeed/4);
+            console.log()
+          }
+          else if(gameover == "yes"){
+            page01.drawImage(gover, 300, 120,200,100);
+            page01.fillText("Click SPACE to Play again",320, 250,);
+          }
+        }
+        // console.log("birdY",birdY,birdYY,gamestate);
+        checkloose();
+      },interval);
+      }
+      function piperandA(){
+        var randA = Math.floor(Math.random()*(7-0)+0);//0 ~ 6
+        pipelenA = randA;
+        scorex+=5;
+      }
+      function piperandB(){
+        var randB = Math.floor(Math.random()*(7-0)+0);//0 ~ 6
+        pipelenB = randB;
+        scorex+=5;
+      }
+      function checkloose(){
+        if((pipeX1 <= 29 && pipeX1 >= -28) &&(birdY <= 240-(pipelenA*40)-3 || birdY >= 240-(pipelenA*40)+pipespace-20)){gameover = "yes"}
+        if((pipeX2 <= 29 && pipeX2 >= -28) &&(birdY <= 240-(pipelenB*40)-3 || birdY >= 240-(pipelenB*40)+pipespace-20)){gameover = "yes"}
+      }
+      function clkpage01(){
+        console.log("Hi There!!!")
+      }
+   </script>
+  </body>
+</html>
